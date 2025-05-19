@@ -7,7 +7,7 @@ type Props = {
 
 export const ErrorMsg: React.FC<Props> = ({ error, setError }) => {
   useEffect(() => {
-    if (error === '') {
+    if (!error) {
       return;
     }
 
@@ -16,7 +16,7 @@ export const ErrorMsg: React.FC<Props> = ({ error, setError }) => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [error]);
+  }, [error, setError]);
 
   const closeErrorMsg = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

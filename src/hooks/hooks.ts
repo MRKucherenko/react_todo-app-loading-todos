@@ -4,7 +4,7 @@ import { method, USER_ID } from '../api/todos';
 
 export type Filter = 'all' | 'active' | 'completed';
 
-export const useHooks = () => {
+export const useTodosActions = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [error, setError] = useState<string>('');
   const [filter, setFilter] = useState<Filter>('all');

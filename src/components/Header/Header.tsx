@@ -1,24 +1,16 @@
-import { Todo } from '../../types/Todo';
+import { useTodosActions } from '../../hooks/hooks';
 
-type Props = {
-  todos: Todo[];
-  query: string;
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
-  addTodo: () => Promise<void>;
-  disabled: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
-  patch: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
-};
+export const Header: React.FC = () => {
+  const {
+    todosFromServer,
+    query,
+    setQuery,
+    addTodo,
+    disabled,
+    inputRef,
+    toggleAll,
+  } = useTodosActions();
 
-export const Header: React.FC<Props> = ({
-  todos,
-  query,
-  setQuery,
-  addTodo,
-  disabled,
-  inputRef,
-  patch,
-}) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setQuery(event.target.value);
@@ -31,12 +23,12 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {todosFromServer.length > 0 && (
         <button
           type="button"
-          className={`todoapp__toggle-all${todos.every(todo => todo.completed === true) ? ' active' : ''}`}
+          className={`todoapp__toggle-all${todosFromServer.every(todo => todo.completed) ? ' active' : ''}`}
           data-cy="ToggleAllButton"
-          onClick={event => patch(event)}
+          onClick={toggleAll}
         />
       )}
 

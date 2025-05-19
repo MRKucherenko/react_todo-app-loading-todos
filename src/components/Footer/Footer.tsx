@@ -1,22 +1,11 @@
-import { Filter } from '../../hooks/hooks';
-import { Todo } from '../../types/Todo';
+import { useTodosActions } from '../../hooks/hooks';
+import classNames from 'classnames';
 
-type Props = {
-  filter: string;
-  setFilter: React.Dispatch<React.SetStateAction<Filter>>;
-  todos: Todo[];
-  clear: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
-};
+export const Footer: React.FC = () => {
+  const { filter, setFilter, todosFromServer, clear } = useTodosActions();
 
-export const Footer: React.FC<Props> = ({
-  filter,
-  setFilter,
-  todos,
-  clear,
-}) => {
-  const completed = todos.filter(todo => todo.completed === true);
-  const total = todos.length;
-  const count = total - completed.length;
+  const completed = todosFromServer.filter(todo => todo.completed);
+  const count = todosFromServer.length - completed.length;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -28,7 +17,9 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           onClick={() => setFilter('all')}
-          className={`filter__link${filter === 'all' ? ' selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === 'all',
+          })}
           data-cy="FilterLinkAll"
         >
           All
@@ -37,7 +28,9 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           onClick={() => setFilter('active')}
-          className={`filter__link${filter === 'active' ? ' selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === 'active',
+          })}
           data-cy="FilterLinkActive"
         >
           Active
@@ -46,7 +39,9 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           onClick={() => setFilter('completed')}
-          className={`filter__link${filter === 'completed' ? ' selected' : ''}`}
+          className={classNames('filter__link', {
+            selected: filter === 'completed',
+          })}
           data-cy="FilterLinkCompleted"
         >
           Completed

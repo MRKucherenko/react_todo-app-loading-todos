@@ -1,27 +1,30 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { useRef, useState } from 'react';
+import { useTodosActions } from '../../hooks/hooks';
 import { EditableField, Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   loading: boolean;
-  del: (id: number) => Promise<void>;
-  patch: (data: EditableField, id: number) => Promise<void>;
+  deleteTodo: (id: number) => Promise<void>;
+  updateTodo: (data: EditableField, id: number) => Promise<void>;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, loading, del, patch }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
+  const { deleteTodo, patchTodo, loading } = useTodosActions();
   const { id, title, completed } = todo;
-  const [editFlag, setEditFlag] = useState<boolean>(false);
+
+  const [editFlag, setEditFlag] = useState(false);
   const [query, setQuery] = useState('');
   const submitting = useRef(false);
 
   const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    del(id);
+    deleteTodo(id);
   };
 
   const handleCheckbox = async () => {
-    await patch({ completed: !completed }, id);
+    await patchTodo({ completed: !completed }, id);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -32,30 +35,27 @@ export const TodoItem: React.FC<Props> = ({ todo, loading, del, patch }) => {
 
     submitting.current = true;
     if (query.trim() === '') {
-      await del(id);
+      await deleteTodo(id);
 
       return;
     }
 
-    const validate = title === query;
-
-    if (validate) {
+    if (title === query) {
       setEditFlag(false);
 
       return;
     }
 
     try {
-      await patch({ title: query.trim() }, id);
+      await patchTodo({ title: query.trim() }, id);
       setEditFlag(false);
       setQuery('');
-    } catch (e) {
-      throw e;
+    } finally {
+      submitting.current = false;
     }
   };
 
   const onKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    event.preventDefault();
     if (event.key === 'Escape') {
       setEditFlag(false);
       setQuery('');
@@ -63,11 +63,9 @@ export const TodoItem: React.FC<Props> = ({ todo, loading, del, patch }) => {
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (submitting.current) {
-      return;
+    if (!submitting.current) {
+      handleSubmit(event);
     }
-
-    handleSubmit(event);
   };
 
   return (
@@ -78,11 +76,11 @@ export const TodoItem: React.FC<Props> = ({ todo, loading, del, patch }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={handleCheckbox}
+          onChange={handleCheckbox}
         />
       </label>
 
-      {editFlag === false ? (
+      {!editFlag ? (
         <>
           <span
             data-cy="TodoTitle"
@@ -105,23 +103,24 @@ export const TodoItem: React.FC<Props> = ({ todo, loading, del, patch }) => {
           </button>
         </>
       ) : (
-        <form onSubmit={(event: React.FormEvent) => handleSubmit(event)}>
+        <form onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={query}
-            onChange={event => setQuery(event?.target.value)}
+            onChange={e => setQuery(e.target.value)}
             onKeyUp={onKeyUp}
             onBlur={handleBlur}
             autoFocus
           />
         </form>
       )}
+
       <div
         data-cy="TodoLoader"
-        className={`modal overlay${loading ? ' is-active' : ''}`}
+        className={`modal overlay${loading.includes(todo.id) ? ' is-active' : ''}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

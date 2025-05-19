@@ -5,7 +5,7 @@ export const USER_ID = 0;
 
 export const method = {
   get: () => {
-    return client.get<Todo[]>(`/todos`);
+    return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
   },
 
   post: (data: Omit<Todo, 'id'>): Promise<Todo> => {

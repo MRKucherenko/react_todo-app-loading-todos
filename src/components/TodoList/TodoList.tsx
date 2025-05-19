@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -11,7 +12,7 @@ export type Filter = 'all' | 'active' | 'completed';
 
 export const TodoList: React.FC<Props> = ({ todos }) => {
   const [filter, setFilter] = useState<Filter>('all');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [loading, setLoading] = useState<number[]>([]);
 
   const visibleTodos: Todo[] = useMemo(() => {
