@@ -1,43 +1,34 @@
-import { useEffect } from 'react';
+import classNames from 'classnames';
 
 type Props = {
-  error: string;
-  setError: React.Dispatch<React.SetStateAction<string>>;
+  theError: string;
+  hasError: boolean;
+  setHasError: (p: boolean) => void;
 };
 
-export const ErrorMsg: React.FC<Props> = ({ error, setError }) => {
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setError('');
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [error, setError]);
-
-  const closeErrorMsg = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setError('');
-  };
-
+export const Errors: React.FC<Props> = ({
+  theError,
+  hasError,
+  setHasError,
+}) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={
-        `notification is-danger is-light has-text-weight-normal` +
-        (error ? '' : ' hidden')
-      }
+      className={classNames(
+        'notification is-danger is-light has-text-weight-normal',
+        {
+          hidden: !hasError,
+        },
+      )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={closeErrorMsg}
+        onClick={() => setHasError(false)}
       />
-      {error}
+
+      {theError}
     </div>
   );
 };

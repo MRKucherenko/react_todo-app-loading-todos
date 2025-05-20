@@ -1,22 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getTodos } from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList/TodoList';
 import { Header } from './components/Header/Header';
-import { useTodosActions } from './hooks/hooks';
-import { ErrorMsg } from './components/Errors/Errors';
-import { TodoItem } from './components/TodoItem/TodoItem';
 import { Footer } from './components/Footer/Footer';
-import { TempTodo } from './components/TodoItem/TempoTodo';
+import { Errors } from './components/Errors/Errors';
 
 export const App: React.FC = () => {
-  const {
-    visibleTodos,
-    tempTodo,
-    error,
-    setError,
-    todosFromServer,
-    loading,
-    deleteTodo,
-    patchTodo,
-  } = useTodosActions();
+  const [hasError, setHasError] = useState(false);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+
+  const [theError, setTheError] = useState<string>('');
+
+  const visibleTodos = todos.filter(todo => {
+    if (filter === 'active') {
+      return !todo.completed;
+    }
+
+    if (filter === 'completed') {
+      return todo.completed;
+    }
+
+    return true;
+  });
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    getTodos(2881)
+      .then((response: React.SetStateAction<Todo[]>) => {
+        setTodos(response);
+      })
+      .catch(() => {
+        setHasError(true);
+        setTheError('Unable to load todos');
+
+        timer = setTimeout(() => {
+          setHasError(false);
+        }, 3000);
+      });
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, []);
 
   return (
     <div className="todoapp">
@@ -25,24 +55,16 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        <section className="todoapp__main" data-cy="TodoList">
-          {visibleTodos.map(todo => (
-            <TodoItem
-              todo={todo}
-              loading={loading.includes(todo.id)}
-              key={todo.id}
-              deleteTodo={deleteTodo}
-              updateTodo={patchTodo}
-            />
-          ))}
+        <TodoList todos={todos} visibleTodos={visibleTodos} />
 
-          {tempTodo && <TempTodo todo={tempTodo} />}
-        </section>
-
-        {todosFromServer.length > 0 && <Footer />}
-
-        <ErrorMsg error={error} setError={setError} />
+        <Footer setFilter={setFilter} filter={filter} todos={todos} />
       </div>
+
+      <Errors
+        setHasError={setHasError}
+        hasError={hasError}
+        theError={theError}
+      />
     </div>
   );
 };

@@ -1,48 +1,20 @@
-import { useTodosActions } from '../../hooks/hooks';
+import React from 'react';
 
-export const Header: React.FC = () => {
-  const {
-    todosFromServer,
-    query,
-    setQuery,
-    addTodo,
-    disabled,
-    inputRef,
-    toggleAll,
-  } = useTodosActions();
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setQuery(event.target.value);
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await addTodo();
-  };
-
+export const Header = () => {
   return (
     <header className="todoapp__header">
-      {todosFromServer.length > 0 && (
-        <button
-          type="button"
-          className={`todoapp__toggle-all${todosFromServer.every(todo => todo.completed) ? ' active' : ''}`}
-          data-cy="ToggleAllButton"
-          onClick={toggleAll}
-        />
-      )}
+      <button
+        type="button"
+        className="todoapp__toggle-all active"
+        data-cy="ToggleAllButton"
+      />
 
-      <form onSubmit={handleSubmit}>
+      <form>
         <input
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={query}
-          onChange={handleChange}
-          ref={inputRef}
-          disabled={disabled}
-          autoFocus
         />
       </form>
     </header>

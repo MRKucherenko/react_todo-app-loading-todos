@@ -1,51 +1,54 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useMemo, useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { TodoItem } from '../TodoItem/TodoItem';
-import { Footer } from '../Footer/Footer';
+import React from 'react';
 
-type Props = {
+export interface Props {
   todos: Todo[];
-};
+  visibleTodos: Todo[];
+}
 
-export type Filter = 'all' | 'active' | 'completed';
-
-export const TodoList: React.FC<Props> = ({ todos }) => {
-  const [filter, setFilter] = useState<Filter>('all');
-
-  const [loading, setLoading] = useState<number[]>([]);
-
-  const visibleTodos: Todo[] = useMemo(() => {
-    switch (filter) {
-      case 'all':
-        return todos;
-
-      case 'active':
-        return todos.filter(todo => !todo.completed);
-
-      case 'completed':
-        return todos.filter(todo => todo.completed);
-    }
-  }, [todos, filter]);
-
+export const TodoList: React.FC<Props> = ({ todos, visibleTodos }) => {
   return (
-    <>
-      <section className="todoapp__main" data-cy="TodoList">
-        {visibleTodos.map(todo => (
-          <TodoItem
-            todo={todo}
-            loading={loading.includes(todo.id)}
-            key={todo.id}
-          />
-        ))}
-      </section>
-      {todos.length > 0 && (
-        <Footer
-          filter={filter}
-          setFilter={setFilter}
-          statuses={todos.map(todo => todo.completed)}
-        />
-      )}
-    </>
+    <section className="todoapp__main" data-cy="TodoList">
+      {todos.length > 0 &&
+        visibleTodos.map(todo => {
+          return (
+            <div
+              key={todo.id}
+              data-cy="Todo"
+              className={classNames('todo', {
+                completed: todo.completed === true,
+              })}
+            >
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                  checked={todo.completed}
+                />
+              </label>
+
+              <span data-cy="TodoTitle" className="todo__title">
+                {todo.title}
+              </span>
+
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+              >
+                ×
+              </button>
+
+              <div data-cy="TodoLoader" className="modal overlay">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          );
+        })}
+    </section>
   );
 };
